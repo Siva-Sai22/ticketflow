@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TicketStatus {
+  Open
+  Paused
+  Closed
+}
+
+enum Priority {
+  Low
+  Medium
+  High
+}
+
+model Department {
+  id         String      @id @default(cuid())
+  name       String
+  teamLeadId String      @unique
+  teamLead   Developer   @relation("teamLead", fields: [teamLeadId], references: [id])
+  tickets    Ticket[]    @relation("AssignedDepartment")
+  developers Developer[]
+}
+
+model Ticket {
+  id                  String       @id @default(cuid())
+  title               String
+  description         String
+  progress            Int
+  status              TicketStatus
+  subTickets          Ticket[]     @relation("ParentTicket")
+  assignedDepartments Department[] @relation("AssignedDepartment")
+  files               File[]       @relation("TicketFiles")
+  rating              Int?
+  meetings            Meeting[]
+  parentId            String?
+  parent              Ticket?      @relation("ParentTicket", fields: [parentId], references: [id])
+  priority            Priority
+}
+
+model CustomerTickets {
+  id          String       @id @default(cuid())
+  title       String
+  description String
+  status      TicketStatus
+  customerId  String
+  customer    Customer     @relation(fields: [customerId], references: [id])
+}
+
+model Developer {
+  id               String      @id @default(cuid())
+  name             String
+  leadOfDepartment Department? @relation("teamLead")
+  departmentId     String
+  department       Department  @relation(fields: [departmentId], references: [id])
+}
+
+model Customer {
+  id            String            @id @default(cuid())
+  name          String
+  email         String
+  ticketsOpened CustomerTickets[]
+}
+
+model Meeting {
+  id       String   @id @default(cuid())
+  date     DateTime
+  notes    String
+  ticketId String
+  ticket   Ticket   @relation(fields: [ticketId], references: [id])
+}
+
+model File {
+  id        String   @id @default(cuid())
+  name      String
+  mimeType  String
+  content   Bytes
+  size      Int
+  createdAt DateTime @default(now())
+  ticketId  String
+  ticket    Ticket   @relation("TicketFiles", fields: [ticketId], references: [id], onDelete: Cascade)
+}
