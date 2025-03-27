@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { serialize } from "cookie";
+import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,15 +19,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid password" }, { status: 401 });
     }
 
-    const cookie = serialize(
-      "user",
-      JSON.stringify({ email: user.email, id: user.id }),
+    const token = jwt.sign(
       {
-        httpOnly: true,
-        maxAge: 60 * 60 * 24 * 7, // One week
-        path: "/",
+        username: user.name,
+        email: user.email,
+        role: "developer",
       },
+      JWT_SECRET,
+      { expiresIn: "7d" }, // 7 days
     );
+
+    const cookie = serialize("authToken", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24 * 7, // One week
+      path: "/",
+    });
 
     return NextResponse.redirect("/", {
       status: 302,

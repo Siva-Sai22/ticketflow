@@ -33,11 +33,10 @@ export default function Hero() {
             <div className="rounded-lg bg-white/10 p-6 shadow-lg backdrop-blur-sm">
               <div className="relative aspect-video rounded-md bg-gray-800/40">
                 <Image
-                  src="/Logo.webp"
+                  src="/logo.jpg"
                   alt="TicketFlow Logo"
-                  fill
                   className="rounded-md object-cover"
-                  priority
+                  fill
                 />
               </div>
             </div>
