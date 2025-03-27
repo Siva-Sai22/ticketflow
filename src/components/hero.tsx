@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Hero() {
   return (
@@ -30,19 +31,14 @@ export default function Hero() {
           </div>
           <div className="md:w-1/2">
             <div className="rounded-lg bg-white/10 p-6 shadow-lg backdrop-blur-sm">
-              <div className="flex aspect-video items-center justify-center rounded-md bg-gray-800/40">
-                <svg
-                  className="h-16 w-16 text-blue-300"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+              <div className="relative aspect-video rounded-md bg-gray-800/40">
+                <Image
+                  src="/Logo.webp"
+                  alt="TicketFlow Logo"
+                  fill
+                  className="rounded-md object-cover"
+                  priority
+                />
               </div>
             </div>
           </div>

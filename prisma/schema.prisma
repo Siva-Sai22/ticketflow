@@ -13,6 +13,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+generator erd {
+  provider = "prisma-grapher"
+}
+
 enum TicketStatus {
   Open
   Paused
@@ -62,7 +66,7 @@ model CustomerTickets {
 model Developer {
   id               String      @id @default(cuid())
   name             String
-  email            String
+  email            String      @unique
   password         String
   leadOfDepartment Department? @relation("teamLead")
   departmentId     String
