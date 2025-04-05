@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
     const { email, password } = await request.json();
     const user = await prisma.developer.findFirst({
       where: { email },
+      include: { leadOfDepartment: true },
     });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
       {
         username: user.name,
         email: user.email,
-        role: "developer",
+        role: user.leadOfDepartment ? "lead" : "developer",
       },
       JWT_SECRET,
       { expiresIn: "7d" }, // 7 days
@@ -37,13 +38,21 @@ export async function POST(request: NextRequest) {
       path: "/",
     });
 
-    return NextResponse.redirect("/", {
-      status: 302,
-      headers: {
-        "Set-Cookie": cookie,
+    return NextResponse.json(
+      {
+        username: user.name,
+        email: user.email,
+        role: user.leadOfDepartment ? "lead" : "developer",
       },
-    });
+      {
+        status: 302,
+        headers: {
+          "Set-Cookie": cookie,
+        },
+      },
+    );
   } catch (error) {
+    console.error("Error during login:", error);
     return NextResponse.json(
       { error: "Internal server error" + error },
       { status: 500 },

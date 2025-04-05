@@ -8,7 +8,7 @@ export default function Navbar() {
   return (
     <nav className="bg-white shadow-md dark:bg-gray-900">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center py-4">
+        <div className="flex items-center justify-between py-4">
           <div className="flex items-center">
             <Link
               href="/"
@@ -19,7 +19,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden items-center space-x-6 md:flex">
             <Link
               href="/"
               className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
@@ -39,8 +39,14 @@ export default function Navbar() {
               Pricing
             </Link>
             <Link
+              href="/admin"
+              className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+            >
+              Admin
+            </Link>
+            <Link
               href="/signup"
-              className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+              className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
             >
               Sign Up
             </Link>
@@ -54,7 +60,7 @@ export default function Navbar() {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               <svg
-                className="w-6 h-6"
+                className="h-6 w-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -82,7 +88,7 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 space-y-3">
+          <div className="space-y-3 py-4 md:hidden">
             <Link
               href="/"
               className="block text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
@@ -109,7 +115,7 @@ export default function Navbar() {
             </Link>
             <Link
               href="/signup"
-              className="block px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 w-full text-center"
+              className="block w-full rounded-md bg-blue-600 px-4 py-2 text-center text-white hover:bg-blue-700"
             >
               Sign Up
             </Link>

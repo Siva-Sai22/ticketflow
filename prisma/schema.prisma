@@ -13,10 +13,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-generator erd {
-  provider = "prisma-grapher"
-}
-
 enum TicketStatus {
   Open
   Paused
@@ -31,9 +27,9 @@ enum Priority {
 
 model Department {
   id         String      @id @default(cuid())
-  name       String
-  teamLeadId String      @unique
-  teamLead   Developer   @relation("teamLead", fields: [teamLeadId], references: [id])
+  name       String   @unique
+  teamLeadId String?     @unique
+  teamLead   Developer?  @relation("teamLead", fields: [teamLeadId], references: [id])
   tickets    Ticket[]    @relation("AssignedDepartment")
   developers Developer[]
 }

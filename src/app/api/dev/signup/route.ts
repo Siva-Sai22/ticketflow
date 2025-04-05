@@ -24,8 +24,16 @@ export async function POST(request: NextRequest) {
         name: body.name,
         email: body.email,
         password: body.password,
-        leadOfDepartment: body.role === "lead" ? body.department : null,
-        department: body.department,
+        department: {
+          connect: {
+            name: body.department,
+          },
+        },
+        ...(body.role === "lead" && {
+          leadOfDepartment: {
+            connect: { name: body.department },
+          },
+        }),
       },
     });
 
@@ -33,7 +41,7 @@ export async function POST(request: NextRequest) {
       {
         username: newUser.name,
         email: newUser.email,
-        role: "developer",
+        role: body.role,
       },
       JWT_SECRET,
       { expiresIn: "7d" }, // 7 days
@@ -47,13 +55,24 @@ export async function POST(request: NextRequest) {
       path: "/",
     });
 
-    return NextResponse.redirect("/", {
-      status: 302,
-      headers: {
-        "Set-Cookie": cookie,
+    return NextResponse.json(
+      {
+        success: true,
+        user: {
+          id: newUser.id,
+          name: newUser.name,
+          email: newUser.email,
+        },
       },
-    });
+      {
+        status: 200,
+        headers: {
+          "Set-Cookie": cookie,
+        },
+      },
+    );
   } catch (error) {
+    console.error("Error during signup:", error);
     return NextResponse.json(
       { error: "Internal server error" + error },
       { status: 500 },

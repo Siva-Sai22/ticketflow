@@ -1,9 +1,19 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { useUser } from "@/context/user-context";
+import { useRouter } from "next/navigation";
+
+interface Department {
+  id: string;
+  name: string;
+  teamLead?: {
+    name: string;
+    email: string;
+  };
+}
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -14,6 +24,22 @@ export default function Signup() {
     department: "",
   });
   const { setUserData } = useUser();
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await fetch("/api/dept");
+        const data = await response.json();
+        setDepartments(data);
+      } catch (error) {
+        console.error("Error fetching departments:", error);
+      }
+    };
+
+    fetchDepartments();
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -37,7 +63,7 @@ export default function Signup() {
     if (res.status === 200) {
       const data = await res.json();
       setUserData(data);
-      console.log(data);
+      router.push("/");
     } else {
       console.log("Error signing up");
     }
@@ -152,15 +178,20 @@ export default function Signup() {
                 >
                   Department
                 </label>
-                <input
+                <select
                   id="department"
                   name="department"
-                  type="text"
-                  className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-blue-500 focus:ring-blue-500 focus:outline-none sm:text-sm dark:border-gray-700 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-                  placeholder="Department"
+                  className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:z-10 focus:border-blue-500 focus:ring-blue-500 focus:outline-none sm:text-sm dark:border-gray-700 dark:bg-gray-700 dark:text-white"
                   value={formData.department}
                   onChange={handleChange}
-                />
+                >
+                  <option value="">Select Department</option>
+                  {departments.map((dept) => (
+                    <option key={dept.id} value={dept.name}>
+                      {dept.name}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
