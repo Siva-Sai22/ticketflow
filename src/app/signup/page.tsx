@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { useUser } from "@/context/user-context";
 import { useRouter } from "next/navigation";
@@ -53,7 +52,7 @@ export default function Signup() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch("/api/dev/signup", {
+    const res = await fetch("/api/auth/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -71,8 +70,6 @@ export default function Signup() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Navbar />
-
       <div className="flex flex-grow items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8 dark:bg-gray-900">
         <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-md dark:bg-gray-800">
           <div>

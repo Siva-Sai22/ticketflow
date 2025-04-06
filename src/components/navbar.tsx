@@ -1,9 +1,15 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useUser } from "@/context/user-context";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { userData, isLoading, logout } = useUser();
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <nav className="bg-white shadow-md dark:bg-gray-900">
@@ -44,12 +50,23 @@ export default function Navbar() {
             >
               Admin
             </Link>
-            <Link
-              href="/signup"
-              className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-            >
-              Sign Up
-            </Link>
+            {isLoading ? (
+              <div className="h-10 w-20 animate-pulse rounded-md bg-gray-200 dark:bg-gray-700"></div>
+            ) : userData ? (
+              <button
+                className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+              >
+                Log In
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}

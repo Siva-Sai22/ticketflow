@@ -27,7 +27,7 @@ enum Priority {
 
 model Department {
   id         String      @id @default(cuid())
-  name       String   @unique
+  name       String      @unique
   teamLeadId String?     @unique
   teamLead   Developer?  @relation("teamLead", fields: [teamLeadId], references: [id])
   tickets    Ticket[]    @relation("AssignedDepartment")
@@ -41,6 +41,7 @@ model Ticket {
   progress            Int
   status              TicketStatus
   subTickets          Ticket[]     @relation("ParentTicket")
+  assignedTo          Developer[]  @relation("AssignedTicket")
   assignedDepartments Department[] @relation("AssignedDepartment")
   files               File[]       @relation("TicketFiles")
   rating              Int?
@@ -67,6 +68,7 @@ model Developer {
   leadOfDepartment Department? @relation("teamLead")
   departmentId     String
   department       Department  @relation(fields: [departmentId], references: [id])
+  ticketsAssigned  Ticket[]    @relation("AssignedTicket")
 }
 
 model Customer {

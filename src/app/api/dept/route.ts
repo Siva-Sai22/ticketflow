@@ -8,8 +8,6 @@ export async function GET() {
     include: {
       teamLead: {
         select: {
-          id: true,
-          name: true,
           email: true,
         },
       },

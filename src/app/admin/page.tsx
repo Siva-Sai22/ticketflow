@@ -1,13 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
-import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 
 interface Department {
   id: string;
   name: string;
   teamLead?: {
-    name: string;
     email: string;
   };
 }
@@ -25,6 +23,7 @@ export default function AdminPage() {
       try {
         const response = await fetch("/api/dept");
         const data = await response.json();
+        console.log("Fetched departments:", data);
         setDepartments(data);
         setLoading(false);
       } catch (err) {
@@ -75,8 +74,6 @@ export default function AdminPage() {
 
   return (
     <main className="flex min-h-screen flex-col">
-      <Navbar />
-
       <div className="container mx-auto flex-grow px-4 py-8 bg-gray-50 dark:bg-gray-900">
         <div className="mb-4">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
@@ -192,7 +189,7 @@ export default function AdminPage() {
                             {dept.name}
                           </td>
                           <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-white">
-                            {dept.teamLead?.name || "Not assigned"}
+                            {dept.teamLead?.email || "Not assigned"}
                           </td>
                           <td className="whitespace-nowrap px-6 py-4 text-sm">
                             <button className="mr-3 font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">Edit</button>

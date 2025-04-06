@@ -1,7 +1,11 @@
+"use client";
 import Link from "next/link";
 import Image from "next/image";
+import { useUser } from "@/context/user-context";
 
 export default function Hero() {
+  const { userData } = useUser();
+
   return (
     <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
       <div className="container mx-auto px-4 py-16 md:py-24">
@@ -15,12 +19,21 @@ export default function Hero() {
               streamline development workflows.
             </p>
             <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
-              <Link
-                href="/signup"
-                className="rounded-md bg-white px-6 py-3 text-center font-medium text-blue-600 hover:bg-gray-100"
-              >
-                Get Started
-              </Link>
+              {userData ? (
+                <Link
+                  href="/tickets"
+                  className="rounded-md bg-white px-6 py-3 text-center font-medium text-blue-600 hover:bg-gray-100"
+                >
+                  Get Started
+                </Link>
+              ) : (
+                <Link
+                  href="/signup"
+                  className="rounded-md bg-white px-6 py-3 text-center font-medium text-blue-600 hover:bg-gray-100"
+                >
+                  Get Started
+                </Link>
+              )}
               <Link
                 href="/features"
                 className="rounded-md border border-white px-6 py-3 text-center font-medium hover:bg-blue-700"
