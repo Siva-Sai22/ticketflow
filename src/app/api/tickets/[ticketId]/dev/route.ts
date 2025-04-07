@@ -7,7 +7,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { ticketId: string } },
 ) {
-  const { ticketId } = params;
+  const { ticketId } = await params;
   if (!ticketId) {
     return new Response("Ticket ID is required", { status: 400 });
   }

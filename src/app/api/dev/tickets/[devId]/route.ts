@@ -7,7 +7,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { devId: string } },
 ) {
-  const { devId } = params;
+  const { devId } = await params;
   if (!devId) {
     return new Response("Developer ID is required", { status: 400 });
   }

@@ -9,7 +9,7 @@ export async function PUT(
 ) {
   const body = await req.json();
   const { progress } = body;
-  const ticketId = params.ticketId;
+  const ticketId = await params.ticketId;
 
   try {
     const updatedTicket = await prisma.ticket.update({
