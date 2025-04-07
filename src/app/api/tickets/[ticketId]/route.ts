@@ -7,7 +7,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { ticketId: string } },
 ) {
-  const id = params.ticketId;
+  const id = await params.ticketId;
 
   if (!id) {
     return NextResponse.json(
