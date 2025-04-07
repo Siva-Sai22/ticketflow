@@ -3,13 +3,16 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET(request: NextRequest, { params }: { params: { ticketId: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { ticketId: string } },
+) {
   const id = params.ticketId;
 
   if (!id) {
     return NextResponse.json(
       { error: "Ticket ID is required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -17,13 +20,32 @@ export async function GET(request: NextRequest, { params }: { params: { ticketId
     where: {
       id,
     },
+    include: {
+      assignedDepartments: true,
+      assignedTo: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          department: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+      files: true,
+      subTickets: true,
+      meetings: true,
+    },
   });
   return NextResponse.json(ticket, { status: 200 });
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { ticketId: string } }
+  { params }: { params: { ticketId: string } },
 ) {
   try {
     const developerId = request.nextUrl.searchParams.get("id");
@@ -33,7 +55,7 @@ export async function PUT(
     if (!developerId) {
       return NextResponse.json(
         { error: "Developer ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -55,7 +77,7 @@ export async function PUT(
 
       if (
         ticket?.assignedDepartments.some(
-          (department) => department.id === developer?.departmentId
+          (department) => department.id === developer?.departmentId,
         )
       ) {
         const updatedTicket = await prisma.ticket.update({

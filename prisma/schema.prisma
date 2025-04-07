@@ -14,9 +14,9 @@ datasource db {
 }
 
 enum TicketStatus {
-  Open
-  Paused
-  Closed
+  Todo
+  InProgress
+  Done
 }
 
 enum Priority {
@@ -49,6 +49,8 @@ model Ticket {
   parentId            String?
   parent              Ticket?      @relation("ParentTicket", fields: [parentId], references: [id])
   priority            Priority
+  createdAt          DateTime     @default(now())
+  dueDate            DateTime
 }
 
 model CustomerTickets {
