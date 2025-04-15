@@ -9,40 +9,75 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const user = await prisma.developer.findFirst({
+    
+    // Check if user with this email already exists (either developer or customer)
+    const existingDeveloper = await prisma.developer.findFirst({
       where: { email: body.email },
     });
-    if (user) {
+    
+    const existingCustomer = await prisma.customer.findFirst({
+      where: { email: body.email },
+    });
+    
+    if (existingDeveloper || existingCustomer) {
       return NextResponse.json(
         { error: "User already exists" },
         { status: 400 },
       );
     }
 
-    const newUser = await prisma.developer.create({
-      data: {
-        name: body.name,
-        email: body.email,
-        password: body.password,
-        department: {
-          connect: {
-            name: body.department,
-          },
+    let userData;
+    
+    if (body.role === "customer") {
+      // Create customer account
+      const newCustomer = await prisma.customer.create({
+        data: {
+          name: body.name,
+          email: body.email,
+          password: body.password,
         },
-        ...(body.role === "lead" && {
-          leadOfDepartment: {
-            connect: { name: body.department },
+      });
+      
+      userData = {
+        id: newCustomer.id,
+        name: newCustomer.name,
+        email: newCustomer.email,
+        role: "customer",
+      };
+    } else {
+      // Create developer account (developer or lead)
+      const newUser = await prisma.developer.create({
+        data: {
+          name: body.name,
+          email: body.email,
+          password: body.password,
+          department: {
+            connect: {
+              name: body.department,
+            },
           },
-        }),
-      },
-    });
+          ...(body.role === "lead" && {
+            leadOfDepartment: {
+              connect: { name: body.department },
+            },
+          }),
+        },
+      });
+      
+      userData = {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        role: body.role,
+      };
+    }
 
     const token = jwt.sign(
       {
-        id: newUser.id,
-        username: newUser.name,
-        email: newUser.email,
-        role: body.role,
+        id: userData.id,
+        username: userData.name,
+        email: userData.email,
+        role: userData.role,
       },
       JWT_SECRET,
       { expiresIn: "7d" }, // 7 days
@@ -59,12 +94,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        user: {
-          id: newUser.id,
-          name: newUser.name,
-          email: newUser.email,
-          role: body.role,
-        },
+        user: userData,
       },
       {
         status: 200,

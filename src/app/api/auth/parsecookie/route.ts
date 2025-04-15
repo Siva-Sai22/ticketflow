@@ -22,19 +22,40 @@ export async function GET() {
     const userData =
       typeof data === "object" ? data : JSON.parse(data as string);
 
-    const user = await prisma.developer.findFirst({
-      where: { email: userData.email },
-      include: { leadOfDepartment: true },
-    });
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    const userRole = userData.role;
+    
+    if (userRole === "customer") {
+      const customer = await prisma.customer.findFirst({
+        where: { email: userData.email },
+      });
+      
+      if (!customer) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+      
+      return NextResponse.json({
+        id: customer.id,
+        name: customer.name,
+        email: customer.email,
+        role: "customer",
+      });
+    } else {
+      const developer = await prisma.developer.findFirst({
+        where: { email: userData.email },
+        include: { leadOfDepartment: true },
+      });
+      
+      if (!developer) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+      
+      return NextResponse.json({
+        id: developer.id,
+        name: developer.name,
+        email: developer.email,
+        role: developer.leadOfDepartment ? "lead" : "developer",
+      });
     }
-    return NextResponse.json({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.leadOfDepartment ? "lead" : "developer",
-    });
   } catch (error) {
     return NextResponse.json(
       { error: "Internal server error" + error },

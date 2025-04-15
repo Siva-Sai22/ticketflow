@@ -165,31 +165,35 @@ export default function Signup() {
                 >
                   <option value="developer">Developer</option>
                   <option value="lead">Team Lead</option>
+                  <option value="customer">Customer</option>
                 </select>
               </div>
 
-              <div>
-                <label
-                  htmlFor="department"
-                  className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Department
-                </label>
-                <select
-                  id="department"
-                  name="department"
-                  className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:z-10 focus:border-blue-500 focus:ring-blue-500 focus:outline-none sm:text-sm dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-                  value={formData.department}
-                  onChange={handleChange}
-                >
-                  <option value="">Select Department</option>
-                  {departments.map((dept) => (
-                    <option key={dept.id} value={dept.name}>
-                      {dept.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {formData.role !== "customer" && (
+                <div>
+                  <label
+                    htmlFor="department"
+                    className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    Department
+                  </label>
+                  <select
+                    id="department"
+                    name="department"
+                    className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:z-10 focus:border-blue-500 focus:ring-blue-500 focus:outline-none sm:text-sm dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+                    value={formData.department}
+                    onChange={handleChange}
+                    required={formData.role !== "customer"}
+                  >
+                    <option value="">Select Department</option>
+                    {departments.map((dept) => (
+                      <option key={dept.id} value={dept.name}>
+                        {dept.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
 
             <div>

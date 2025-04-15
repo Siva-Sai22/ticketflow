@@ -11,20 +11,24 @@ import SubticketsTab from "./components/tabs/SubTicketsTab";
 import AssignmentsTab from "./components/tabs/AssignmentsTab";
 import FilesTab from "./components/tabs/FilesTab";
 import MeetingsTab from "./components/tabs/MeetingsTab";
+import StatusToggle from "./components/StatusToggle";
 import { TicketDetails, Department, Developer } from "./components/types";
+import { useUser } from "@/context/user-context";
 
 export default function TicketDetailsPage() {
   const params = useParams<{ ticketId: string }>();
-  
+  const { userData } = useUser();
+  const isLead = userData?.role === "lead";
+
   // State for ticket data
   const [ticket, setTicket] = useState<TicketDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("details");
-  
+
   // Progress bar state
   const [isEditingProgress, setIsEditingProgress] = useState(false);
   const [newProgress, setNewProgress] = useState(0);
-  
+
   // Resource states
   const [availableDepts, setAvailableDepts] = useState<Department[]>([]);
   const [availableDevs, setAvailableDevs] = useState<Developer[]>([]);
@@ -149,6 +153,17 @@ export default function TicketDetailsPage() {
     }
   };
 
+  // Function to handle status change
+  const handleStatusChange = (newStatus: string) => {
+    if (
+      newStatus === "InProgress" ||
+      newStatus === "Done" ||
+      newStatus === "Todo"
+    ) {
+      setTicket((prev) => (prev ? { ...prev, status: newStatus } : null));
+    }
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -195,8 +210,10 @@ export default function TicketDetailsPage() {
             {/* Parent Ticket Link (if this is a subticket) */}
             {ticket.parent && (
               <div className="mb-4 text-sm">
-                <span className="font-medium text-gray-600 dark:text-gray-400">Parent Ticket:</span>{" "}
-                <Link 
+                <span className="font-medium text-gray-600 dark:text-gray-400">
+                  Parent Ticket:
+                </span>{" "}
+                <Link
                   href={`/tickets/${ticket.parent.id}`}
                   className="text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
                 >
@@ -204,10 +221,20 @@ export default function TicketDetailsPage() {
                 </Link>
               </div>
             )}
-            
+
             <TicketHeader ticket={ticket} />
-            
-            <ProgressBar 
+
+            {/* Status Toggle - Only visible to users with "lead" role */}
+            {isLead && (
+              <div className="mt-4 pb-2">
+                <StatusToggle
+                  ticket={ticket}
+                  onStatusChange={handleStatusChange}
+                />
+              </div>
+            )}
+
+            <ProgressBar
               progress={ticket.progress}
               isEditing={isEditingProgress}
               newProgress={newProgress}
@@ -215,7 +242,7 @@ export default function TicketDetailsPage() {
               setIsEditing={setIsEditingProgress}
               updateProgress={updateProgress}
             />
-            
+
             {/* Description */}
             <div className="mt-4">
               <h3 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -233,34 +260,24 @@ export default function TicketDetailsPage() {
           {/* Tab Content */}
           <div className="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
             {activeTab === "details" && <DetailsTab ticket={ticket} />}
-            
-            {activeTab === "subtickets" && (
-              <SubticketsTab 
-                ticket={ticket}
-              />
-            )}
-            
+
+            {activeTab === "subtickets" && <SubticketsTab ticket={ticket} />}
+
             {activeTab === "assignments" && (
-              <AssignmentsTab 
+              <AssignmentsTab
                 ticket={ticket}
                 setTicket={setTicket}
                 availableDepts={availableDepts}
                 availableDevs={availableDevs}
               />
             )}
-            
+
             {activeTab === "files" && (
-              <FilesTab 
-                ticket={ticket}
-                setTicket={setTicket}
-              />
+              <FilesTab ticket={ticket} setTicket={setTicket} />
             )}
-            
+
             {activeTab === "meetings" && (
-              <MeetingsTab 
-                ticket={ticket}
-                setTicket={setTicket}
-              />
+              <MeetingsTab ticket={ticket} setTicket={setTicket} />
             )}
           </div>
         </div>

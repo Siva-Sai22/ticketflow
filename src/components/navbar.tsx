@@ -2,13 +2,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useUser } from "@/context/user-context";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { userData, isLoading, logout } = useUser();
+  const router = useRouter();
 
   const handleLogout = async () => {
     await logout();
+    router.push("/");
   };
 
   return (
@@ -33,16 +36,10 @@ export default function Navbar() {
               Home
             </Link>
             <Link
-              href="/features"
+              href="/customers"
               className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
             >
-              Features
-            </Link>
-            <Link
-              href="/pricing"
-              className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
-            >
-              Pricing
+              Customer
             </Link>
             <Link
               href="/admin"
@@ -113,29 +110,34 @@ export default function Navbar() {
               Home
             </Link>
             <Link
-              href="/features"
+              href="/customers"
               className="block text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
             >
-              Features
+              Customer
             </Link>
             <Link
-              href="/pricing"
+              href="/admin"
               className="block text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
             >
-              Pricing
+              Admin
             </Link>
-            <Link
-              href="/login"
-              className="block text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
-            >
-              Login
-            </Link>
-            <Link
-              href="/signup"
-              className="block w-full rounded-md bg-blue-600 px-4 py-2 text-center text-white hover:bg-blue-700"
-            >
-              Sign Up
-            </Link>
+            {isLoading ? (
+              <div className="h-10 w-full animate-pulse rounded-md bg-gray-200 dark:bg-gray-700"></div>
+            ) : userData ? (
+              <button
+                className="block w-full rounded-md bg-blue-600 px-4 py-2 text-center text-white hover:bg-blue-700"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className="block w-full rounded-md bg-blue-600 px-4 py-2 text-center text-white hover:bg-blue-700"
+              >
+                Log In
+              </Link>
+            )}
           </div>
         )}
       </div>

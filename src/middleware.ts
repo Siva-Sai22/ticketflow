@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 
 // Define route patterns
-const publicRoutes = ["/api/auth", "/"];
+const publicRoutes = ["/api/auth", "/login", "/signup", "/api/dept"];
 const adminRoutes = ["/admin"];
 
 export async function middleware(request: NextRequest) {
@@ -14,7 +14,8 @@ export async function middleware(request: NextRequest) {
   if (
     publicRoutes.some(
       (route) => pathname.startsWith(route) || pathname === route,
-    )
+    ) ||
+    pathname === "/"
   ) {
     return NextResponse.next();
   }
