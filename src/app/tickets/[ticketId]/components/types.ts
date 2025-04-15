@@ -43,6 +43,7 @@ export interface TicketDetails {
   files: File[];
   meetings: Meeting[];
   rating?: number;
+  parent: { id: string; title: string } | null;
 }
 
 export function getStatusColor(status: string) {

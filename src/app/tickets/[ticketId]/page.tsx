@@ -7,7 +7,7 @@ import TicketHeader from "./components/TicketHeader";
 import ProgressBar from "./components/ProgressBar";
 import TabNavigation from "./components/TabNavigation";
 import DetailsTab from "./components/tabs/DetailsTab";
-import SubtasksTab from "./components/tabs/SubtasksTab";
+import SubticketsTab from "./components/tabs/SubTicketsTab";
 import AssignmentsTab from "./components/tabs/AssignmentsTab";
 import FilesTab from "./components/tabs/FilesTab";
 import MeetingsTab from "./components/tabs/MeetingsTab";
@@ -87,6 +87,9 @@ export default function TicketDetailsPage() {
             },
           ],
           rating: 0,
+          // Add parent ticket for demo data
+          parent: null, // Set to null for top-level tickets
+          // Example with parent: parent: { id: "parent1", title: "Authentication System Overhaul" },
         });
         setNewProgress(35);
       } finally {
@@ -189,6 +192,19 @@ export default function TicketDetailsPage() {
 
           {/* Header */}
           <div className="mb-6 rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
+            {/* Parent Ticket Link (if this is a subticket) */}
+            {ticket.parent && (
+              <div className="mb-4 text-sm">
+                <span className="font-medium text-gray-600 dark:text-gray-400">Parent Ticket:</span>{" "}
+                <Link 
+                  href={`/tickets/${ticket.parent.id}`}
+                  className="text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  {ticket.parent.title}
+                </Link>
+              </div>
+            )}
+            
             <TicketHeader ticket={ticket} />
             
             <ProgressBar 
@@ -218,10 +234,9 @@ export default function TicketDetailsPage() {
           <div className="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800">
             {activeTab === "details" && <DetailsTab ticket={ticket} />}
             
-            {activeTab === "subtasks" && (
-              <SubtasksTab 
-                ticket={ticket} 
-                setTicket={setTicket} 
+            {activeTab === "subtickets" && (
+              <SubticketsTab 
+                ticket={ticket}
               />
             )}
             

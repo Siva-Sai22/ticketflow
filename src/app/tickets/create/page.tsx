@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Footer from "@/components/footer";
 
 interface Department {
@@ -17,13 +17,22 @@ interface Developer {
   };
 }
 
+interface Ticket {
+  id: string;
+  title: string;
+}
+
 export default function CreateTicket() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const parentId = searchParams.get("parentId");
+
   const [departments, setDepartments] = useState<Department[]>([]);
   const [developers, setDevelopers] = useState<Developer[]>([]);
   const [availableDevelopers, setAvailableDevelopers] = useState<Developer[]>(
     [],
   );
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -34,6 +43,7 @@ export default function CreateTicket() {
     dueDate: "",
     assignedDepartments: [] as string[],
     assignedDevelopers: [] as string[],
+    parentId: parentId || "",
   });
 
   useEffect(() => {
@@ -57,8 +67,19 @@ export default function CreateTicket() {
       }
     };
 
+    const fetchTickets = async () => {
+      try {
+        const response = await fetch("/api/tickets");
+        const data = await response.json();
+        setTickets(data);
+      } catch (error) {
+        console.error("Error fetching tickets:", error);
+      }
+    };
+
     fetchDepartments();
     fetchDevelopers();
+    fetchTickets();
   }, []);
 
   useEffect(() => {
@@ -138,15 +159,41 @@ export default function CreateTicket() {
         <div className="w-full max-w-lg space-y-8 rounded-lg bg-white p-8 shadow-md dark:bg-gray-800">
           <div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-              Create a New Ticket
+              {formData.parentId
+                ? "Create a New Subticket"
+                : "Create a New Ticket"}
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-              Fill out the form below to create a new ticket
+              Fill out the form below to create a{" "}
+              {formData.parentId ? "subticket" : "ticket"}
             </p>
           </div>
 
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-4 rounded-md shadow-sm">
+              <div>
+                <label
+                  htmlFor="parentId"
+                  className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Parent Ticket (Optional)
+                </label>
+                <select
+                  id="parentId"
+                  name="parentId"
+                  className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:z-10 focus:border-blue-500 focus:ring-blue-500 focus:outline-none sm:text-sm dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+                  value={formData.parentId}
+                  onChange={handleChange}
+                >
+                  <option value="">No Parent (Create as Main Ticket)</option>
+                  {tickets.map((ticket) => (
+                    <option key={ticket.id} value={ticket.id}>
+                      {ticket.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div>
                 <label
                   htmlFor="title"
@@ -339,7 +386,9 @@ export default function CreateTicket() {
                 disabled={loading}
                 className="flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {loading ? "Creating..." : "Create Ticket"}
+                {loading
+                  ? "Creating..."
+                  : `Create ${formData.parentId ? "Subticket" : "Ticket"}`}
               </button>
             </div>
           </form>

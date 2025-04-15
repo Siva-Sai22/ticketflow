@@ -73,6 +73,62 @@ export default function FilesTab({ ticket, setTicket }: Props) {
     }
   };
 
+  // Function to handle file deletion
+  const handleFileDelete = async (fileId: string) => {
+    try {
+      // API call to delete file
+      const response = await fetch(`/api/tickets/${ticket.id}/files?fileId=${fileId}`, {
+        method: "DELETE",
+      });
+      
+      if (response.ok) {
+        // Update local state after successful deletion
+        setTicket((prev) => 
+          prev 
+            ? {
+                ...prev,
+                files: prev.files.filter(file => file.id !== fileId)
+              }
+            : null
+        );
+      } else {
+        console.error("Error deleting file:", await response.text());
+      }
+    } catch (error) {
+      console.error("Error deleting file:", error);
+    }
+  };
+
+  // Function to handle file download
+  const handleFileDownload = async (fileId: string, fileName: string) => {
+    try {
+      const response = await fetch(`/api/tickets/${ticket.id}/files?fileId=${fileId}`, {
+        method: "GET",
+      });
+      
+      if (response.ok) {
+        // Get file content as blob
+        const blob = await response.blob();
+        
+        // Create a download link and trigger download
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Clean up
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } else {
+        console.error("Error downloading file:", await response.text());
+      }
+    } catch (error) {
+      console.error("Error downloading file:", error);
+    }
+  };
+
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
@@ -114,10 +170,16 @@ export default function FilesTab({ ticket, setTicket }: Props) {
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <button className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                  <button 
+                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                    onClick={() => handleFileDownload(file.id, file.name)}
+                  >
                     <FaDownload />
                   </button>
-                  <button className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
+                  <button 
+                    className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                    onClick={() => handleFileDelete(file.id)}
+                  >
                     <FaTrash />
                   </button>
                 </div>

@@ -6,7 +6,7 @@ interface Props {
 export default function TabNavigation({ activeTab, setActiveTab }: Props) {
   const tabs = [
     { id: "details", label: "Details" },
-    { id: "subtasks", label: "Subtasks" },
+    { id: "subtickets", label: "Subtickets" },
     { id: "assignments", label: "Assignments" },
     { id: "files", label: "Files" },
     { id: "meetings", label: "Meetings" },

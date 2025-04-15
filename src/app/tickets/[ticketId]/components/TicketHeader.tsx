@@ -1,4 +1,4 @@
-import { FaEdit } from "react-icons/fa";
+// import { FaEdit } from "react-icons/fa";
 import { TicketDetails, getStatusColor, getPriorityColor } from "./types";
 
 interface Props {
@@ -30,11 +30,11 @@ export default function TicketHeader({ ticket }: Props) {
           {new Date(ticket.dueDate).toLocaleDateString()}
         </p>
       </div>
-      <div>
+      {/* <div>
         <button className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
           <FaEdit className="mr-2" /> Edit Ticket
         </button>
-      </div>
+      </div> */}
     </div>
   );
 }

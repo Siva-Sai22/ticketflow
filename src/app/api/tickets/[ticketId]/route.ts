@@ -38,6 +38,12 @@ export async function GET(
       files: true,
       subTickets: true,
       meetings: true,
+      parent: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
     },
   });
   return NextResponse.json(ticket, { status: 200 });
