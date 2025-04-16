@@ -21,21 +21,12 @@ export default function Hero() {
               streamline development workflows.
             </p>
             <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
-              {userData ? (
-                <Link
-                  href={getStartedLink}
-                  className="rounded-md bg-white px-6 py-3 text-center font-medium text-blue-600 hover:bg-gray-100"
-                >
-                  Get Started
-                </Link>
-              ) : (
-                <Link
-                  href="/signup"
-                  className="rounded-md bg-white px-6 py-3 text-center font-medium text-blue-600 hover:bg-gray-100"
-                >
-                  Get Started
-                </Link>
-              )}
+              <Link
+                href={getStartedLink}
+                className="rounded-md bg-white px-6 py-3 text-center font-medium text-blue-600 hover:bg-gray-100"
+              >
+                Get Started
+              </Link>
               <Link
                 href="/features"
                 className="rounded-md border border-white px-6 py-3 text-center font-medium hover:bg-blue-700"
