@@ -18,6 +18,17 @@ export default function Navbar() {
   const supportUrl = userData?.role === "customer" 
     ? `/support/${userData.id}` 
     : "/support";
+    
+  // Handle navigation with auth verification
+  const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+    // Only for protected routes
+    if (path.startsWith('/admin') || path.startsWith('/support')) {
+      e.preventDefault();
+      
+      // Force a hard navigation for first access to ensure middleware runs properly
+      window.location.href = path;
+    }
+  };
 
   return (
     <nav className="bg-white shadow-md dark:bg-gray-900">
@@ -43,6 +54,7 @@ export default function Navbar() {
             <Link
               href={supportUrl}
               className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+              onClick={(e) => handleNavigation(e, supportUrl)}
             >
               Support
             </Link>
@@ -50,6 +62,7 @@ export default function Navbar() {
               <Link
                 href="/admin"
                 className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                onClick={(e) => handleNavigation(e, "/admin")}
               >
                 Admin
               </Link>
@@ -119,6 +132,7 @@ export default function Navbar() {
             <Link
               href={supportUrl}
               className="block text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+              onClick={(e) => handleNavigation(e, supportUrl)}
             >
               Support
             </Link>
@@ -126,6 +140,7 @@ export default function Navbar() {
               <Link
                 href="/admin"
                 className="block text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                onClick={(e) => handleNavigation(e, "/admin")}
               >
                 Admin
               </Link>

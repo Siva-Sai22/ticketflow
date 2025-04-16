@@ -27,12 +27,14 @@ export async function middleware(request: NextRequest) {
   }
 
   // Get the token from the authToken HTTP-only cookie
-  const cookieStore = await cookies();
-  const token = cookieStore.get("authToken")?.value;
+  const cookieStore = cookies();
+  const token = (await cookieStore).get("authToken")?.value;
 
   // If no token and not a public route, redirect to login
   if (!token) {
-    return NextResponse.redirect(new URL("/login?error=unauthorized", request.url));
+    return NextResponse.redirect(
+      new URL("/login?error=unauthorized", request.url),
+    );
   }
 
   // Verify token using jose instead of jsonwebtoken
@@ -45,14 +47,21 @@ export async function middleware(request: NextRequest) {
     // Jose automatically parses the JWT payload
     const userData = payload;
 
+    // Create a response that we'll modify based on route requirements
+    const response = NextResponse.next();
+
+    // Add user data to response headers for client-side consistency
+    response.headers.set("x-user-role", userData.role as string);
+    response.headers.set("x-user-id", userData.id as string);
+    response.headers.set("x-user-email", userData.email as string);
+
     // Check for admin routes
     if (
       adminRoutes.some(
         (route) => pathname.startsWith(route) || pathname === route,
       )
     ) {
-      const adminEmails =
-        process.env.ADMIN_EMAILS?.split(",").map((email) => email.trim()) || [];
+      const adminEmails = process.env.ADMIN_EMAILS?.split(",") || [];
       const userEmail = userData.email as string;
 
       // If user is not an admin, redirect to unauthorized page
@@ -69,33 +78,34 @@ export async function middleware(request: NextRequest) {
     ) {
       const userRole = userData.role as string;
       const userId = userData.id as string;
-      
+
       // Allow support staff to access all support routes
       if (userRole === "support") {
-        return NextResponse.next();
+        return response;
       }
-      
+
       // Extract customer ID from the support path if it follows the pattern /support/{custId}
-      const pathParts = pathname.split('/');
-      if (pathParts.length >= 3 && pathParts[1] === 'support') {
+      const pathParts = pathname.split("/");
+      if (pathParts.length >= 3 && pathParts[1] === "support") {
         const pathCustomerId = pathParts[2];
-        
+
         // Allow customers to access only their own support routes
         if (userRole === "customer" && pathCustomerId === userId) {
-          return NextResponse.next();
+          return response;
         }
       }
-      
-      // If user doesn't have permissions, redirect to unauthorized page
+
       return NextResponse.redirect(new URL("/unauthorized", request.url));
     }
 
-    // All other cases, allow the request
-    return NextResponse.next();
+    // All other cases, allow the request with our enhanced response
+    return response;
   } catch (error) {
     // If token verification fails, redirect to login
     console.error("Token verification failed:", error);
-    return NextResponse.redirect(new URL("/login?error=invalidToken", request.url));
+    return NextResponse.redirect(
+      new URL("/login?error=invalidToken", request.url),
+    );
   }
 }
 
