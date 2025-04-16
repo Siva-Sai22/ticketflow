@@ -25,8 +25,13 @@ export default function Navbar() {
     if (path.startsWith('/admin') || path.startsWith('/support')) {
       e.preventDefault();
       
-      // Force a hard navigation for first access to ensure middleware runs properly
-      window.location.href = path;
+      // Redirect based on user role for support routes
+      if (path.startsWith('/support') && userData?.role === 'customer') {
+        window.location.href = `/support/${userData.id}`;
+      } else {
+        // Force a hard navigation for other protected routes
+        window.location.href = path;
+      }
     }
   };
 
