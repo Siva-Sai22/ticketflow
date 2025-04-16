@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { notifyTicketModified } from "@/services/notificationService";
 
 const prisma = new PrismaClient();
 
@@ -33,6 +34,9 @@ export async function POST(
         },
       },
     });
+
+    // Notify about the file upload
+    await notifyTicketModified(ticketId, { file: fileRecord });
 
     return new Response(JSON.stringify(fileRecord), { status: 201 });
   } catch (error) {

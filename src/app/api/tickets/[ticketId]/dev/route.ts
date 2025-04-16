@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { notifyTicketModified } from "@/services/notificationService";
 
 const prisma = new PrismaClient();
 
@@ -42,6 +43,9 @@ export async function PUT(
       },
       include: { assignedTo: true }
     });
+
+    // Notify about developer assignment changes
+    await notifyTicketModified(ticketId, { assignedDevelopers: developerIds });
 
     return new Response(JSON.stringify(updatedTicket), { status: 200 });
   } catch (error) {

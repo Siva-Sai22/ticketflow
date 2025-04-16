@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { notifyTicketModified } from "@/services/notificationService";
 
 const prisma = new PrismaClient();
 
@@ -23,6 +24,9 @@ export async function POST(
       where: { id: ticketId },
       data: { status },
     });
+
+    // Notify about the status change
+    await notifyTicketModified(ticketId, { status });
 
     return new Response(JSON.stringify(ticket), { status: 200 });
   } catch (error) {

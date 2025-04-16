@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient, TicketStatus } from "@prisma/client";
+import {
+  notifyCustomerFeedbackAdded,
+  notifyCustomerStatusChanged,
+} from "@/services/notificationService";
 
 const prisma = new PrismaClient();
 
@@ -16,12 +20,12 @@ export async function PATCH(
       feedback?: string;
       status?: TicketStatus;
     } = {};
-    
+
     // Add feedback if present
     if (data.feedback !== undefined) {
       updateData.feedback = data.feedback;
     }
-    
+
     // Add status if present
     if (data.status !== undefined) {
       updateData.status = data.status as TicketStatus;
@@ -34,6 +38,15 @@ export async function PATCH(
       },
       data: updateData,
     });
+
+    if (data.feedback) {
+      // Notify customer about the feedback
+      await notifyCustomerFeedbackAdded(ticketId);
+    }
+    if (data.status) {
+      // Notify customer about the status change
+      await notifyCustomerStatusChanged(ticketId);
+    }
 
     return NextResponse.json(updatedTicket, { status: 200 });
   } catch (error) {

@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { notifyTicketModified } from "@/services/notificationService";
 
 const prisma = new PrismaClient();
 
@@ -27,6 +28,9 @@ export async function POST(
         },
       },
     });
+
+    // Notify about the meeting creation
+    await notifyTicketModified(ticketId, { meeting });
 
     return new Response(JSON.stringify(meeting), { status: 201 });
   } catch (error) {

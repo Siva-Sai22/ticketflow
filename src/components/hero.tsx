@@ -5,6 +5,8 @@ import { useUser } from "@/context/user-context";
 
 export default function Hero() {
   const { userData } = useUser();
+  const getStartedLink =
+    userData?.role === "customer" ? `/support/${userData.id}` : "/tickets";
 
   return (
     <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
@@ -21,7 +23,7 @@ export default function Hero() {
             <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
               {userData ? (
                 <Link
-                  href="/tickets"
+                  href={getStartedLink}
                   className="rounded-md bg-white px-6 py-3 text-center font-medium text-blue-600 hover:bg-gray-100"
                 >
                   Get Started

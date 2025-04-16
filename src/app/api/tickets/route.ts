@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { notifyTicketAssignment } from "@/services/notificationService";
 
 const prisma = new PrismaClient();
 
@@ -44,6 +45,11 @@ export async function POST(request: NextRequest) {
   const ticket = await prisma.ticket.create({
     data: ticketData,
   });
+
+  // Notify assigned developers
+  if (body.assignedDevelopers && body.assignedDevelopers.length > 0) {
+    await notifyTicketAssignment(ticket.id, body.assignedDevelopers);
+  }
 
   return new Response(JSON.stringify(ticket), { status: 201 });
 }
