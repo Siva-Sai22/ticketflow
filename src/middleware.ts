@@ -11,6 +11,11 @@ const supportRoutes = ["/support"];
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Allow static image files to be accessed directly
+  if (/\.(jpg|jpeg|png|gif|webp|avif|svg|ico)$/i.test(pathname)) {
+    return NextResponse.next();
+  }
+
   // Check if the path is a public route
   if (
     publicRoutes.some(
