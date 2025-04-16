@@ -6,11 +6,11 @@ const prisma = new PrismaClient();
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { ticketId: string } },
+  { params }: { params: Promise<{ ticketId: string }> },
 ) {
   const body = await req.json();
   const { progress } = body;
-  const ticketId = await params.ticketId;
+  const { ticketId } = await params;
 
   try {
     const updatedTicket = await prisma.ticket.update({

@@ -5,11 +5,11 @@ const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { ticketId: string } },
+  { params }: { params: Promise<{ ticketId: string }> },
 ) {
-  const id = await params.ticketId;
+  const { ticketId } = await params;
 
-  if (!id) {
+  if (!ticketId) {
     return NextResponse.json(
       { error: "Ticket ID is required" },
       { status: 400 },
@@ -18,7 +18,7 @@ export async function GET(
 
   const ticket = await prisma.ticket.findUnique({
     where: {
-      id,
+      id: ticketId,
     },
     include: {
       assignedDepartments: true,

@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { devId: string } },
+  { params }: { params: Promise<{ devId: string }> },
 ) {
   const { devId } = await params;
   if (!devId) {

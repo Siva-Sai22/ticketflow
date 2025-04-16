@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Footer from "@/components/footer";
@@ -22,7 +22,7 @@ interface Ticket {
   title: string;
 }
 
-export default function CreateTicket() {
+function CreateTicketContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const parentId = searchParams.get("parentId");
@@ -396,5 +396,13 @@ export default function CreateTicket() {
       </div>
       <Footer />
     </div>
+  );
+}
+
+export default function CreateTicket() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <CreateTicketContent />
+    </Suspense>
   );
 }

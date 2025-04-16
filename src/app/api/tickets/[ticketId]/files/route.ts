@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { ticketId: string } },
+  { params }: { params: Promise<{ ticketId: string }> },
 ) {
   const { ticketId } = await params;
   if (!ticketId) {
@@ -47,12 +47,12 @@ export async function POST(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { ticketId: string } },
+  { params }: { params: Promise<{ ticketId: string }> },
 ) {
-  const { ticketId } = params;
+  const { ticketId } = await params;
   const { searchParams } = new URL(request.url);
-  const fileId = searchParams.get('fileId');
-  
+  const fileId = searchParams.get("fileId");
+
   if (!ticketId || !fileId) {
     return new Response("Ticket ID and File ID are required", { status: 400 });
   }
@@ -73,12 +73,12 @@ export async function DELETE(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { ticketId: string } },
+  { params }: { params: Promise<{ ticketId: string }> },
 ) {
-  const { ticketId } = params;
+  const { ticketId } = await params;
   const { searchParams } = new URL(request.url);
-  const fileId = searchParams.get('fileId');
-  
+  const fileId = searchParams.get("fileId");
+
   if (!ticketId || !fileId) {
     return new Response("Ticket ID and File ID are required", { status: 400 });
   }
@@ -96,12 +96,15 @@ export async function GET(
 
     // Create headers for file download
     const headers = new Headers();
-    headers.append('Content-Disposition', `attachment; filename="${file.name}"`);
-    headers.append('Content-Type', file.mimeType || 'application/octet-stream');
+    headers.append(
+      "Content-Disposition",
+      `attachment; filename="${file.name}"`,
+    );
+    headers.append("Content-Type", file.mimeType || "application/octet-stream");
 
-    return new Response(file.content, { 
+    return new Response(file.content, {
       status: 200,
-      headers
+      headers,
     });
   } catch (error) {
     console.error("Error downloading file:", error);

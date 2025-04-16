@@ -5,20 +5,20 @@ const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { deptId: string } }
+  { params }: { params: Promise<{ deptId: string }> },
 ) {
-  const id = params.deptId;
+  const { deptId } = await params;
 
-  if (!id) {
+  if (!deptId) {
     return NextResponse.json(
       { error: "Department ID is required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   const department = await prisma.department.findUnique({
     where: {
-      id,
+      id: deptId,
     },
   });
 

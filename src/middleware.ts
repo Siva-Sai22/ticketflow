@@ -103,7 +103,8 @@ export const config = {
      * 2. /_next (Next.js internals)
      * 3. /static (static files)
      * 4. /favicon.ico, /robots.txt (SEO files)
+     * 5. Image files (jpg, jpeg, png, gif, webp, avif, svg, ico)
      */
-    "/((?!api/auth|_next|static|favicon.ico|robots.txt).*)",
+    "/((?!api/auth|_next|static|favicon.ico|robots.txt|\\.jpg|\\.jpeg|\\.png|\\.gif|\\.webp|\\.avif|\\.svg|\\.ico).*)",
   ],
 };
