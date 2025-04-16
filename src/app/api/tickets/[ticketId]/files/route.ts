@@ -36,7 +36,7 @@ export async function POST(
     });
 
     // Notify about the file upload
-    await notifyTicketModified(ticketId, { file: fileRecord });
+    await notifyTicketModified(ticketId, { file: fileRecord.name });
 
     return new Response(JSON.stringify(fileRecord), { status: 201 });
   } catch (error) {

@@ -47,7 +47,24 @@ export async function PUT(
     });
 
     // Notify about developer assignment changes
-    await notifyTicketModified(ticketId, { assignedDevelopers: developerIds });
+    // Get the developer names
+    const developers = await prisma.developer.findMany({
+      where: {
+        id: {
+          in: developerIds,
+        },
+      },
+      select: {
+        name: true,
+        id: true,
+      },
+    });
+
+    const developerNames = developers.map((dev) => dev.name);
+
+    await notifyTicketModified(ticketId, {
+      assignedDevelopers: developerNames,
+    });
 
     return new Response(JSON.stringify(updatedTicket), { status: 200 });
   } catch (error) {

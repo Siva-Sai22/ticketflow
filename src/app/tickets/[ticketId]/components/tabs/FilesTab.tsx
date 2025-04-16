@@ -12,11 +12,11 @@ export default function FilesTab({ ticket, setTicket }: Props) {
 
   // Function to handle file upload
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+    const curFiles = e.target.files;
+    if (!curFiles || curFiles.length === 0) return;
 
     const formData = new FormData();
-    formData.append("file", files[0]);
+    formData.append("file", curFiles[0]);
 
     try {
       // API call to upload file
@@ -26,7 +26,7 @@ export default function FilesTab({ ticket, setTicket }: Props) {
       });
 
       const fileData = await response.json();
-      
+
       // Update local state
       setTicket((prev) =>
         prev
@@ -36,14 +36,14 @@ export default function FilesTab({ ticket, setTicket }: Props) {
                 ...prev.files,
                 {
                   id: fileData.id || `f${prev.files.length + 1}`,
-                  name: fileData.name || files[0].name,
-                  size: fileData.size || files[0].size,
+                  name: fileData.name || curFiles[0].name,
+                  size: fileData.size || curFiles[0].size,
                   createdAt: new Date().toISOString(),
-                  mimeType: fileData.type || files[0].type,
+                  mimeType: fileData.mimeType || curFiles[0].type,
                 },
               ],
             }
-          : null
+          : null,
       );
     } catch (error) {
       console.error("Error uploading file:", error);
@@ -56,14 +56,14 @@ export default function FilesTab({ ticket, setTicket }: Props) {
                 ...prev.files,
                 {
                   id: `f${prev.files.length + 1}`,
-                  name: files[0].name,
-                  size: files[0].size,
+                  name: curFiles[0].name,
+                  size: curFiles[0].size,
                   createdAt: new Date().toISOString(),
-                  mimeType: files[0].type,
+                  mimeType: curFiles[0].type,
                 },
               ],
             }
-          : null
+          : null,
       );
     }
 
@@ -77,19 +77,22 @@ export default function FilesTab({ ticket, setTicket }: Props) {
   const handleFileDelete = async (fileId: string) => {
     try {
       // API call to delete file
-      const response = await fetch(`/api/tickets/${ticket.id}/files?fileId=${fileId}`, {
-        method: "DELETE",
-      });
-      
+      const response = await fetch(
+        `/api/tickets/${ticket.id}/files?fileId=${fileId}`,
+        {
+          method: "DELETE",
+        },
+      );
+
       if (response.ok) {
         // Update local state after successful deletion
-        setTicket((prev) => 
-          prev 
+        setTicket((prev) =>
+          prev
             ? {
                 ...prev,
-                files: prev.files.filter(file => file.id !== fileId)
+                files: prev.files.filter((file) => file.id !== fileId),
               }
-            : null
+            : null,
         );
       } else {
         console.error("Error deleting file:", await response.text());
@@ -102,22 +105,25 @@ export default function FilesTab({ ticket, setTicket }: Props) {
   // Function to handle file download
   const handleFileDownload = async (fileId: string, fileName: string) => {
     try {
-      const response = await fetch(`/api/tickets/${ticket.id}/files?fileId=${fileId}`, {
-        method: "GET",
-      });
-      
+      const response = await fetch(
+        `/api/tickets/${ticket.id}/files?fileId=${fileId}`,
+        {
+          method: "GET",
+        },
+      );
+
       if (response.ok) {
         // Get file content as blob
         const blob = await response.blob();
-        
+
         // Create a download link and trigger download
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
         a.download = fileName;
         document.body.appendChild(a);
         a.click();
-        
+
         // Clean up
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
@@ -170,13 +176,13 @@ export default function FilesTab({ ticket, setTicket }: Props) {
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <button 
+                  <button
                     className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                     onClick={() => handleFileDownload(file.id, file.name)}
                   >
                     <FaDownload />
                   </button>
-                  <button 
+                  <button
                     className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                     onClick={() => handleFileDelete(file.id)}
                   >

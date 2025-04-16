@@ -7,6 +7,7 @@ export async function GET() {
     const developers = await prisma.developer.findMany({
       select: {
         id: true,
+        name:true,
         email: true,
         department: {
           select: {
