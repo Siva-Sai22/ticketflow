@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
+import * as jose from "jose";
 
 // Define route patterns
 const publicRoutes = ["/api/auth", "/login", "/signup", "/api/dept"];
 const adminRoutes = ["/admin"];
+const supportRoutes = ["/support"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -26,30 +27,71 @@ export async function middleware(request: NextRequest) {
 
   // If no token and not a public route, redirect to login
   if (!token) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL("/login?error=unauthorized", request.url));
   }
 
-  const data = jwt.verify(token, process.env.JWT_SECRET || "your-secret-key");
-  const userData = typeof data === "object" ? data : JSON.parse(data as string);
+  // Verify token using jose instead of jsonwebtoken
+  try {
+    const { payload } = await jose.jwtVerify(
+      token,
+      new TextEncoder().encode(process.env.JWT_SECRET || "your-secret-key"),
+    );
 
-  // Check for admin routes
-  if (
-    adminRoutes.some(
-      (route) => pathname.startsWith(route) || pathname === route,
-    )
-  ) {
-    const adminEmails =
-      process.env.ADMIN_EMAILS?.split(",").map((email) => email.trim()) || [];
-    const userEmail = userData.email as string;
+    // Jose automatically parses the JWT payload
+    const userData = payload;
 
-    // If user is not an admin, redirect to unauthorized page
-    if (!adminEmails.includes(userEmail)) {
-      return NextResponse.redirect(new URL("/login", request.url));
+    // Check for admin routes
+    if (
+      adminRoutes.some(
+        (route) => pathname.startsWith(route) || pathname === route,
+      )
+    ) {
+      const adminEmails =
+        process.env.ADMIN_EMAILS?.split(",").map((email) => email.trim()) || [];
+      const userEmail = userData.email as string;
+
+      // If user is not an admin, redirect to unauthorized page
+      if (!adminEmails.includes(userEmail)) {
+        return NextResponse.redirect(new URL("/unauthorized", request.url));
+      }
     }
-  }
 
-  // All other cases, allow the request
-  return NextResponse.next();
+    // Check for support routes
+    if (
+      supportRoutes.some(
+        (route) => pathname.startsWith(route) || pathname === route,
+      )
+    ) {
+      const userRole = userData.role as string;
+      const userId = userData.id as string;
+      
+      // Allow support staff to access all support routes
+      if (userRole === "support") {
+        return NextResponse.next();
+      }
+      
+      // Extract customer ID from the support path if it follows the pattern /support/{custId}
+      const pathParts = pathname.split('/');
+      if (pathParts.length >= 3 && pathParts[1] === 'support') {
+        const pathCustomerId = pathParts[2];
+        
+        // Allow customers to access only their own support routes
+        if (userRole === "customer" && pathCustomerId === userId) {
+          return NextResponse.next();
+        }
+      }
+      
+      // If user doesn't have permissions, redirect to unauthorized page
+      return NextResponse.redirect(new URL("/unauthorized", request.url));
+    }
+
+    // All other cases, allow the request
+    return NextResponse.next();
+  } catch (error) {
+    // If token verification fails, redirect to login
+    console.error("Token verification failed:", error);
+    return NextResponse.redirect(new URL("/login?error=invalidToken", request.url));
+  }
 }
 
 // Configure middleware to run on specific paths

@@ -14,6 +14,11 @@ export default function Navbar() {
     router.push("/");
   };
 
+  // Generate support URL based on user role
+  const supportUrl = userData?.role === "customer" 
+    ? `/support/${userData.id}` 
+    : "/support";
+
   return (
     <nav className="bg-white shadow-md dark:bg-gray-900">
       <div className="container mx-auto px-4">
@@ -36,17 +41,19 @@ export default function Navbar() {
               Home
             </Link>
             <Link
-              href="/customers"
+              href={supportUrl}
               className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
             >
-              Customer
+              Support
             </Link>
-            <Link
-              href="/admin"
-              className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
-            >
-              Admin
-            </Link>
+            {userData?.role !== "customer" && (
+              <Link
+                href="/admin"
+                className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+              >
+                Admin
+              </Link>
+            )}
             {isLoading ? (
               <div className="h-10 w-20 animate-pulse rounded-md bg-gray-200 dark:bg-gray-700"></div>
             ) : userData ? (
@@ -110,17 +117,19 @@ export default function Navbar() {
               Home
             </Link>
             <Link
-              href="/customers"
+              href={supportUrl}
               className="block text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
             >
-              Customer
+              Support
             </Link>
-            <Link
-              href="/admin"
-              className="block text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
-            >
-              Admin
-            </Link>
+            {userData?.role !== "customer" && (
+              <Link
+                href="/admin"
+                className="block text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+              >
+                Admin
+              </Link>
+            )}
             {isLoading ? (
               <div className="h-10 w-full animate-pulse rounded-md bg-gray-200 dark:bg-gray-700"></div>
             ) : userData ? (

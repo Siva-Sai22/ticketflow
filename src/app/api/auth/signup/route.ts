@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { serialize } from "cookie";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+const SALT_ROUNDS = 10;
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,15 +28,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(body.password, SALT_ROUNDS);
+    
     let userData;
     
     if (body.role === "customer") {
-      // Create customer account
+      // Create customer account with hashed password
       const newCustomer = await prisma.customer.create({
         data: {
           name: body.name,
           email: body.email,
-          password: body.password,
+          password: hashedPassword,
         },
       });
       
@@ -45,12 +50,15 @@ export async function POST(request: NextRequest) {
         role: "customer",
       };
     } else {
-      // Create developer account (developer or lead)
+      // Check if the user is signing up for support department
+      const isSupport = body.department === "Support";
+      
+      // Create developer account (developer, lead, or support) with hashed password
       const newUser = await prisma.developer.create({
         data: {
           name: body.name,
           email: body.email,
-          password: body.password,
+          password: hashedPassword,
           department: {
             connect: {
               name: body.department,
@@ -68,7 +76,7 @@ export async function POST(request: NextRequest) {
         id: newUser.id,
         name: newUser.name,
         email: newUser.email,
-        role: body.role,
+        role: isSupport ? "support" : body.role,
       };
     }
 

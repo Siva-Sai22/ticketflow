@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { serialize } from "cookie";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
@@ -13,7 +14,10 @@ export async function POST(request: NextRequest) {
     // Check for developer
     const developer = await prisma.developer.findFirst({
       where: { email },
-      include: { leadOfDepartment: true },
+      include: { 
+        leadOfDepartment: true,
+        department: true
+      },
     });
 
     // Check for customer if no developer found
@@ -30,19 +34,31 @@ export async function POST(request: NextRequest) {
 
     // Handle authentication based on user type
     if (developer) {
-      if (developer.password !== password) {
+      // Compare password with hashed password using bcrypt
+      const passwordValid = await bcrypt.compare(password, developer.password);
+      if (!passwordValid) {
         return NextResponse.json(
           { error: "Invalid password" },
           { status: 401 },
         );
       }
 
+      // Check if the developer is from the Support department
+      const isSupport = developer.department?.name === "Support";
+      
+      // Determine role (support, lead, or developer)
+      const role = isSupport 
+        ? "support" 
+        : developer.leadOfDepartment 
+          ? "lead" 
+          : "developer";
+
       const token = jwt.sign(
         {
           id: developer.id,
           username: developer.name,
           email: developer.email,
-          role: developer.leadOfDepartment ? "lead" : "developer",
+          role: role,
         },
         JWT_SECRET,
         { expiresIn: "7d" }, // 7 days
@@ -61,7 +77,7 @@ export async function POST(request: NextRequest) {
           id: developer.id,
           name: developer.name,
           email: developer.email,
-          role: developer.leadOfDepartment ? "lead" : "developer",
+          role: role,
         },
         {
           status: 302,
@@ -74,8 +90,9 @@ export async function POST(request: NextRequest) {
       if (!customer) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
-      // Customer authentication
-      if (customer.password !== password) {
+      // Customer authentication with bcrypt
+      const passwordValid = await bcrypt.compare(password, customer.password);
+      if (!passwordValid) {
         return NextResponse.json(
           { error: "Invalid password" },
           { status: 401 },

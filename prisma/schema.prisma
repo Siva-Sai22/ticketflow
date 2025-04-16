@@ -60,6 +60,7 @@ model CustomerTickets {
   status      TicketStatus
   customerId  String
   customer    Customer     @relation(fields: [customerId], references: [id])
+  feedback    String?
 }
 
 model Developer {

@@ -42,18 +42,32 @@ export async function GET() {
     } else {
       const developer = await prisma.developer.findFirst({
         where: { email: userData.email },
-        include: { leadOfDepartment: true },
+        include: { 
+          leadOfDepartment: true,
+          department: true 
+        },
       });
       
       if (!developer) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
       
+      // Check if the developer is from the Support department
+      const isSupport = developer.department?.name === "Support";
+      
+      // Determine role (support, lead, or developer)
+      const role = isSupport 
+        ? "support" 
+        : developer.leadOfDepartment 
+          ? "lead" 
+          : "developer";
+      
       return NextResponse.json({
         id: developer.id,
         name: developer.name,
         email: developer.email,
-        role: developer.leadOfDepartment ? "lead" : "developer",
+        role: role,
+        department: developer.department?.name
       });
     }
   } catch (error) {
